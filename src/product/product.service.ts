@@ -96,13 +96,12 @@ export const productService: ProductService = {
 		return product;
 	},
 
-	getFeaturedProducts: (limit = 10) => {
-		return Product.findAll({
-			where: { isPublished: true },
-			order: [['createdAt', 'DESC']],
-			limit,
-			include: [{ model: Seller, attributes: ['storeName'] }],
+	getProductWithTags: async (productId) => {
+		const product = await Product.findByPk(productId, {
+			include: [{ model: Tag, as: 'tags', through: { attributes: [] } }],
 		});
+		if (!product) throw new NotFound('Product not found');
+		return product;
 	},
 
 	updateProductInventory: async (productId, quantityChange) => {
@@ -390,7 +389,7 @@ interface ProductService {
 		products: Product[];
 	}>;
 	getProductWithDetails: (productId: string) => Promise<Product>;
-	getFeaturedProducts: (limit?: number) => Promise<Product[]>;
+	getProductWithTags: (productId: string) => Promise<Product>;
 	updateProductInventory: (
 		productId: string,
 		quantityChange: number,
